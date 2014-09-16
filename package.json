@@ -1,9 +1,9 @@
 {
     "title": "More CSS Code Hints",
     "name": "brackets-morecsscodehints",
-    "description": "Extends CSS code hints with more attributes; background-blend-mode, image-rendering, touch-action and more",
-    "version": "0.9.9",
-    "keywords":["css","image-rendering","hints","will-change","touch-action"],
+    "description": "Extends CSS code hints with more attributes; image-rendering, touch-action, will-change, tab-size, clip-path and more",
+    "version": "1.0.2",
+    "keywords":["css","image-rendering","hints","will-change","touch-action","clip-path","tab-size"],
     "author": "C.Oliff <christianoliff@gmail.com>",
     "homepage": "https://github.com/coliff/",
     "repository": {
@@ -11,6 +11,6 @@
         "url": "git://github.com/coliff/Brackets-CSSCodeHints/Brackets-CSSCodeHints.git"
     },
     "engines": {
-        "brackets": ">=0.42.0"
+        "brackets": ">=0.43.0"
     }
 }
