@@ -1,14 +1,14 @@
 {
-    "title": "More CSS Code Hints",
-    "name": "brackets-morecsscodehints",
-    "description": "Extends CSS code hints with more attributes; background-blend-mode, image-rendering, touch-action and more",
-    "version": "0.9.7",
+    "title": "More CSS Code Hints Jays custom",
+    "name": "brackets-morecsscodehints Jays custom",
+    "description": "Thanks to coliff",
+    "version": "0.9.8",
     "keywords":["background-blend-mode","css","image-rendering","hints"],
     "author": "C.Oliff <christianoliff@gmail.com>",
     "homepage": "https://github.com/coliff/",
     "repository": {
         "type": "git",
-        "url": "git://github.com/coliff/brackets-morecsscodehints/brackets-morecsscodehints.git"
+        "url": "git://github.com/evolutionjay/Brackets-CSSCodeHints.git"
     },
     "engines": {
         "brackets": ">=0.40.0"
