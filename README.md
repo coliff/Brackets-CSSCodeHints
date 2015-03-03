@@ -11,7 +11,8 @@ Complete list of properties and attributes added:
 * image-rendering ("auto", "crisp-edges", "inherit", "pixelated")
 * tab-size
 * touch-action ("auto", "none", "pan-x", "pan-y")
+* user-select
 * will-change
 
 If you spot a CSS attribute missing that you'd like added please open an issue or pull-request.
-https://github.com/coliff
+https://github.com/coliff/Brackets-CSSCodeHints

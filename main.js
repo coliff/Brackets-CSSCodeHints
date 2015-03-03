@@ -1,30 +1,30 @@
 /*
- * Copyright (c) 2014 C Oliff
+ * Copyright (c) 2015 C Oliff
 */
 
 /*jslint vars: true, plusplus: true, devel: true, nomen: true, indent: 4, maxerr: 50, regexp: true */
-/*global define, brackets, $, window */
+/*global define, brackets, $ */
 
 define(function (require, exports, module) {
     "use strict";
 
-    var _                   = brackets.getModule("thirdparty/lodash"),
-        AppInit             = brackets.getModule("utils/AppInit"),
-        ExtensionUtils      = brackets.getModule("utils/ExtensionUtils"),
-        CodeHintManager     = brackets.getModule("editor/CodeHintManager"),
-        CSSUtils            = brackets.getModule("language/CSSUtils"),
-        HTMLUtils           = brackets.getModule("language/HTMLUtils"),
-        LanguageManager     = brackets.getModule("language/LanguageManager"),
-        TokenUtils          = brackets.getModule("utils/TokenUtils"),
-        StringMatch         = brackets.getModule("utils/StringMatch"),
-        CSSProperties       = require("text!CSSProperties.json"),
-        properties          = JSON.parse(CSSProperties);
-
+    var AppInit         = brackets.getModule("utils/AppInit"),
+        ExtensionUtils  = brackets.getModule("utils/ExtensionUtils"),
+        CodeHintManager = brackets.getModule("editor/CodeHintManager"),
+        CSSUtils        = brackets.getModule("language/CSSUtils"),
+        HTMLUtils       = brackets.getModule("language/HTMLUtils"),
+        LanguageManager = brackets.getModule("language/LanguageManager"),
+        TokenUtils      = brackets.getModule("utils/TokenUtils"),
+        StringMatch     = brackets.getModule("utils/StringMatch"),
+        ColorUtils      = brackets.getModule("utils/ColorUtils"),
+        CSSProperties   = require("text!CSSProperties.json"),
+        properties      = JSON.parse(CSSProperties);
+    
     // Context of the last request for hints: either CSSUtils.PROP_NAME,
     // CSSUtils.PROP_VALUE or null.
     var lastContext,
         stringMatcherOptions = { preferPrefixMatches: true };
-
+    
     /**
      * @constructor
      */
@@ -46,21 +46,21 @@ define(function (require, exports, module) {
             // Collect text in all style blocks
             var text = "",
                 styleBlocks = HTMLUtils.findBlocks(this.editor, "css");
-
+            
             styleBlocks.forEach(function (styleBlock) {
                 text += styleBlock.text;
             });
-
+            
             return text;
         } else {
             // css file, just return the text
             return this.editor.document.getText();
         }
     };
-
+    
     /**
-     * Extract all the named flows from any "flow-from" or "flow-into" properties
-     * in the current document. If we have the cached list of named flows and the
+     * Extract all the named flows from any "flow-from" or "flow-into" properties 
+     * in the current document. If we have the cached list of named flows and the 
      * cursor is still on the same line as the cached cursor, then the cached list
      * is returned. Otherwise, we recollect all named flows and update the cache.
      *
@@ -74,18 +74,18 @@ define(function (require, exports, module) {
                 this.namedFlowsCache = null;
             }
         }
-
+        
         if (!this.namedFlowsCache) {
             this.namedFlowsCache = {};
             this.namedFlowsCache.flows = CSSUtils.extractAllNamedFlows(this.getCssStyleText());
             this.namedFlowsCache.cursor = { line: this.cursor.line, ch: this.cursor.ch };
         }
-
+        
         return this.namedFlowsCache.flows;
     };
-
+    
     /**
-     * Check whether the exclusion is still the same as text after the cursor.
+     * Check whether the exclusion is still the same as text after the cursor. 
      * If not, reset it to null.
      *
      * @param {boolean} propNameOnly
@@ -125,8 +125,7 @@ define(function (require, exports, module) {
      */
     CssPropHints.prototype.hasHints = function (editor, implicitChar) {
         this.editor = editor;
-        var cursor = this.editor.getCursorPos(),
-            textAfterCursor;
+        var cursor = this.editor.getCursorPos();
 
         lastContext = null;
         this.info = CSSUtils.getInfoAtPos(editor, cursor);
@@ -143,7 +142,7 @@ define(function (require, exports, module) {
                     this.exclusion = this.info.name.substr(this.info.offset);
                 }
             }
-
+            
             return (this.primaryTriggerKeys.indexOf(implicitChar) !== -1) ||
                    (this.secondaryTriggerKeys.indexOf(implicitChar) !== -1);
         } else if (this.info.context === CSSUtils.PROP_NAME) {
@@ -157,16 +156,20 @@ define(function (require, exports, module) {
         return true;
     };
 
-    /*
+    /**
      * Returns a sorted and formatted list of hints with the query substring
      * highlighted.
-     *
+     * 
      * @param {Array.<Object>} hints - the list of hints to format
      * @param {string} query - querystring used for highlighting matched
-     *      poritions of each hint
+     *      portions of each hint
      * @return {Array.jQuery} sorted Array of jQuery DOM elements to insert
      */
     function formatHints(hints, query) {
+        var hasColorSwatch = hints.some(function (token) {
+            return token.color;
+        });
+
         StringMatch.basicMatchSort(hints);
         return hints.map(function (token) {
             var $hintObj = $("<span>").addClass("brackets-css-hints");
@@ -186,17 +189,19 @@ define(function (require, exports, module) {
                 $hintObj.text(token.value);
             }
 
-            $hintObj.data("token", token);
+            if (hasColorSwatch) {
+                $hintObj = ColorUtils.formatColorHint($hintObj, token.color);
+            }
 
             return $hintObj;
         });
     }
-
+    
     /**
      * Returns a list of availble CSS propertyname or -value hints if possible for the current
-     * editor context.
-     *
-     * @param {Editor} implicitChar
+     * editor context. 
+     * 
+     * @param {Editor} implicitChar 
      * Either null, if the hinting request was explicit, or a single character
      * that represents the last insertion and that indicates an implicit
      * hinting request.
@@ -224,6 +229,7 @@ define(function (require, exports, module) {
             valueNeedle = "",
             context = this.info.context,
             valueArray,
+            type,
             namedFlows,
             result,
             selectInitial = false;
@@ -247,15 +253,16 @@ define(function (require, exports, module) {
             if (!properties[needle]) {
                 return null;
             }
-
+            
             // Cursor is in an existing property value or partially typed value
             if (!this.info.isNewItem && this.info.index !== -1) {
                 valueNeedle = this.info.values[this.info.index].trim();
                 valueNeedle = valueNeedle.substr(0, this.info.offset);
             }
-
+            
             valueArray = properties[needle].values;
-            if (properties[needle].type === "named-flow") {
+            type = properties[needle].type;
+            if (type === "named-flow") {
                 namedFlows = this.getNamedFlows();
 
                 if (valueNeedle.length === this.info.offset && namedFlows.indexOf(valueNeedle) !== -1) {
@@ -263,13 +270,22 @@ define(function (require, exports, module) {
                     // is not an existing one used in other css rule.
                     namedFlows.splice(namedFlows.indexOf(valueNeedle), 1);
                 }
-
+                
                 valueArray = valueArray.concat(namedFlows);
+            } else if (type === "color") {
+                valueArray = valueArray.concat(ColorUtils.COLOR_NAMES.map(function (color) {
+                    return { text: color, color: color };
+                }));
+                valueArray.push("transparent", "currentColor");
             }
-
-            result = $.map(valueArray, function (pvalue, pindex) {
-                var result = StringMatch.stringMatch(pvalue, valueNeedle, stringMatcherOptions);
+            
+            result = $.map(valueArray, function (pvalue) {
+                var result = StringMatch.stringMatch(pvalue.text || pvalue, valueNeedle, stringMatcherOptions);
                 if (result) {
+                    if (pvalue.color) {
+                        result.color = pvalue.color;
+                    }
+
                     return result;
                 }
             });
