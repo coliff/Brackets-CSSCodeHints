@@ -1,6 +1,8 @@
 Brackets-CSSCodeHints
 =======================
 
+**This project is not maintained. I no longer use Adobe Brackets so this extension is no longer maintained. I'm interested in porting this to VS Code. If you can help please get in touch!**
+
 Extend Brackets CSS code hints with more CSS attributes.
 
 Complete list of properties and attributes added:
